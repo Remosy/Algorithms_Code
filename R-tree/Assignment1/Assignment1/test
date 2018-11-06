@@ -1,0 +1,19 @@
+/*
+int width = 0;
+int height = 0;
+typedef boost::geometry::model::d2::point_xy<double> point_xy;
+typedef boost::geometry::model::polygon<point_xy> polygon;
+using namespace boost::geometry::detail::assign;
+vector<point_xy> points;
+polygon poly;
+polygon hull;
+//MIN x , MIN y,  MAX x, MAX y
+for(Node *nd : itrnode){
+for(Data d : nd->dataPoints){
+points.push_back(point_xy(d.X,d.Y));
+}
+}
+bg::assign_points(poly, points);
+boost::geometry::convex_hull(poly, hull);
+using boost::geometry::dsv;
+cout<< "polygon: " << dsv(poly) << endl << "hull: " << dsv(hull) << std::endl;*/
