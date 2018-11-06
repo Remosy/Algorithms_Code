@@ -1,0 +1,18 @@
+(a) My computer is MacOS system with 3.3 GHz processor, 16 GB RAM
+FD-12: The best score can get within 1 minutes, but cannot get score for 21-8 within 1 minitus
++===========================================+
++           FILE         |		 SCORE      +
++===========================================+
++           Q1-5-3       |    22189.14      +
++...........................................+
++           Q1-8-4       |    45421.16       +
++...........................................+
++           Q1-12-4      |    67490.83      +
++...........................................+
++           Q1-21-8      |                  +
++...........................................+
+
+(b) I cannot use Gecode (Bundled) to get results.
+(c) Too many trucks are assigned and these trucks need to go back depot, thus it calculates
+ value from very big value. It took time. If there is a constraint can minimise the number of 
+ trucks, then it can reduce the price.

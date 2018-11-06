@@ -1,0 +1,18 @@
+(a) My computer is MacOS system with 3.3 GHz processor, 16 GB RAM
++===========================================+
++           FILE         |		 TIME       +
++===========================================+
++           Q1-5-3       |    68msec        +
++...........................................+
++           Q1-8-4       |    63msec        +
++...........................................+
++           Q1-12-4      |    63msec        +
++...........................................+
++           Q1-21-8      |    71msec        +
++...........................................+
+
+(b) When I use Gecode (Bundled), time are similar to results(above table) got from FD-12
+(c) I could not solve 21-8, my result was code like:﻿
+	array[trucks, customers, goods] of var int: result; 
+	I thought it might make too many row, after I change the position, I can run the 21-8.
+	Since those files can be run within 1 minitues, thus, there is no further improvement.

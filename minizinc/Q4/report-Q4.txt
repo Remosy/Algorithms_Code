@@ -1,0 +1,42 @@
+My computer is MacOS system with 3.3 GHz processor, 16 GB RAM
++===========================================+
++           FILE         |		 TIME       +
++===========================================+
++           Q1-5-3       |    - msec        +
++...........................................+
++           Q1-8-4       |    - msec        +
++...........................................+
++           Q1-12-4      |    - msec        +
++...........................................+
++           Q1-21-8      |    - msec        +
++...........................................+
+
+Since the "schedule" is used to get the final result in Q2, so I destroyed part of it 
+in Q4. The "schedule" tells program which the customers at which step will be assigned 
+to which truck.
+
+Since the start solution can give the current validate truck and related customer, so I only keep
+these data that is extracted from the start-solution file. And set "_" for rest of 
+"schedule".
+
+E.g truck = 8 & customer = 4 ﻿
+schedule = array2d(trucks, times, 
+[| _, _, _, _, _, _,
+ | _, _, _, _, _, _,
+ | _, _, _, _, _, _,
+ | _, _, _, _, _, _,
+ | _, _, 4, _, _, _,
+ | _, _, _, _, _, _,
+ | _, _, _, _, _, _,
+ | _, _, _, _, _, _|]);
+ 
+However, my LNS is failed to give the best solution, it always gives me:
+﻿MiniZinc: flattening error: 
+  Model does not have a solve item
+
+
+
+
+
+
+ 

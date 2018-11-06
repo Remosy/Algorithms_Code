@@ -1,0 +1,555 @@
+<html>
+<head>
+<title>mst.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #999999; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(128,128,128); font-style: italic; }
+.s1 { color: rgb(128,128,128); font-weight: bold; font-style: italic; }
+.s2 { color: rgb(0,0,0); }
+.s3 { color: rgb(0,0,128); font-weight: bold; }
+.s4 { color: rgb(0,0,255); }
+.s5 { color: rgb(0,128,0); font-weight: bold; }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+mst.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">/************************************************************************* 
+ *  Compilation:  javac mst.java 
+ *  Execution:    java mst 
+ *  Priority Queue, Disjoint Set, Kruskal, Prim codes are similar to CLRS book 
+ *  Graphs: CompleteGraph, ConnectedGraph 
+ *  </span><span class="s1">@author  </span><span class="s0">u6325688 
+ *************************************************************************/</span><span class="s2"> 
+</span><span class="s3">import </span><span class="s2">java.util.*; 
+ 
+</span><span class="s0">/** 
+ Minimum Priority Queue: Min Heap 
+ **/</span><span class="s2"> 
+</span><span class="s3">class </span><span class="s2">MPQueue { 
+    </span><span class="s3">private </span><span class="s2">List&lt;Node&gt; A; 
+ 
+    MPQueue() { 
+        A = </span><span class="s3">new </span><span class="s2">ArrayList&lt;&gt;(); 
+    } 
+ 
+    </span><span class="s3">private int </span><span class="s2">parent(</span><span class="s3">int </span><span class="s2">i) { 
+        </span><span class="s3">return </span><span class="s2">(</span><span class="s3">int</span><span class="s2">) Math.floor(i / </span><span class="s4">2</span><span class="s2">); 
+    } 
+ 
+    </span><span class="s3">private int </span><span class="s2">left(</span><span class="s3">int </span><span class="s2">i) { 
+        </span><span class="s3">return </span><span class="s4">2 </span><span class="s2">* i; 
+    } 
+ 
+    </span><span class="s3">private int </span><span class="s2">right(</span><span class="s3">int </span><span class="s2">i) { 
+        </span><span class="s3">return </span><span class="s4">2 </span><span class="s2">* i + </span><span class="s4">1</span><span class="s2">; 
+    } 
+ 
+    </span><span class="s3">private void </span><span class="s2">swap(</span><span class="s3">int </span><span class="s2">i, </span><span class="s3">int </span><span class="s2">j) { 
+        Node tmp = A.get(i); 
+        A.set(i, A.get(j)); 
+        A.set(j, tmp); 
+    } 
+ 
+    </span><span class="s3">void </span><span class="s2">add(Node x) { 
+        A.add(x); 
+        </span><span class="s3">int </span><span class="s2">heap_loc = A.size() - </span><span class="s4">1</span><span class="s2">; 
+        decreaseKey(heap_loc, x); 
+    } 
+ 
+    </span><span class="s3">int </span><span class="s2">getPosition(Node x) { 
+        </span><span class="s3">return </span><span class="s2">A.indexOf(x); 
+    } 
+ 
+    Node extract_Min() { 
+        Node min = A.get(</span><span class="s4">0</span><span class="s2">); 
+        A.set(</span><span class="s4">0</span><span class="s2">, A.get(A.size() - </span><span class="s4">1</span><span class="s2">)); 
+        A.remove(A.size() - </span><span class="s4">1</span><span class="s2">); 
+        min_Heapfify(</span><span class="s4">0</span><span class="s2">); 
+        </span><span class="s3">return </span><span class="s2">min; 
+    } 
+ 
+    </span><span class="s3">private void </span><span class="s2">min_Heapfify(</span><span class="s3">int </span><span class="s2">i) { 
+        </span><span class="s3">int </span><span class="s2">largest; 
+        </span><span class="s3">int </span><span class="s2">l = left(i); 
+        </span><span class="s3">int </span><span class="s2">r = right(i); 
+        </span><span class="s3">if </span><span class="s2">(l &lt;= A.size() - </span><span class="s4">1 </span><span class="s2">&amp;&amp; A.get(l).key &lt; A.get(i).key) { 
+            largest = l; 
+        } </span><span class="s3">else </span><span class="s2">{ 
+            largest = i; 
+        } 
+        </span><span class="s3">if </span><span class="s2">(r &lt;= A.size() - </span><span class="s4">1 </span><span class="s2">&amp;&amp; A.get(r).key &lt; A.get(largest).key) { 
+            largest = r; 
+        } 
+        </span><span class="s3">if </span><span class="s2">(largest != i) { 
+            swap(i, largest); 
+            min_Heapfify(largest); 
+        } 
+    } 
+ 
+    </span><span class="s3">void </span><span class="s2">decreaseKey(</span><span class="s3">int </span><span class="s2">i, Node x) { 
+        </span><span class="s3">if </span><span class="s2">(x.key &gt; A.get(i).key) { 
+            System.err.println(</span><span class="s5">&quot;new Key is &quot; </span><span class="s2">+ 
+                    </span><span class="s5">&quot;smaller than current Key&quot;</span><span class="s2">); 
+            </span><span class="s3">return</span><span class="s2">; 
+        } 
+        </span><span class="s3">while </span><span class="s2">(i &gt; </span><span class="s4">0 </span><span class="s2">&amp;&amp; 
+                A.get(parent(i)).key &gt; A.get(i).key) { 
+            swap(i, parent(i)); 
+            i = parent(i); 
+        } 
+    } 
+ 
+    </span><span class="s3">boolean </span><span class="s2">isEmpty() { 
+        </span><span class="s3">return </span><span class="s2">A.size() == </span><span class="s4">0</span><span class="s2">; 
+    } 
+ 
+    </span><span class="s3">public int </span><span class="s2">size() { 
+        </span><span class="s3">return </span><span class="s2">A.size(); 
+    } 
+ 
+} 
+ 
+ 
+</span><span class="s0">/** 
+ Disjoint Set 
+ **/</span><span class="s2"> 
+</span><span class="s3">class </span><span class="s2">DisjointSet { 
+    </span><span class="s3">private int</span><span class="s2">[] parent; 
+    </span><span class="s3">private int</span><span class="s2">[] rank; 
+    </span><span class="s3">int </span><span class="s2">size; 
+    DisjointSet(</span><span class="s3">int </span><span class="s2">size) { 
+        </span><span class="s3">this</span><span class="s2">.parent = </span><span class="s3">new int</span><span class="s2">[size]; 
+        </span><span class="s3">this</span><span class="s2">.rank = </span><span class="s3">new int</span><span class="s2">[size]; 
+        </span><span class="s3">this</span><span class="s2">.size = size; 
+        makeSet(); 
+    } 
+ 
+    </span><span class="s3">void </span><span class="s2">makeSet(){ 
+        </span><span class="s3">for </span><span class="s2">(</span><span class="s3">int </span><span class="s2">i=</span><span class="s4">0</span><span class="s2">; i&lt;size; i++) 
+        { 
+            parent[i] = i; 
+            rank[i]= </span><span class="s4">0</span><span class="s2">; 
+        } 
+    } 
+ 
+    </span><span class="s3">void </span><span class="s2">union(</span><span class="s3">int </span><span class="s2">v1, </span><span class="s3">int </span><span class="s2">v2){ 
+        link(findSet(v1),findSet(v2)); 
+    } 
+ 
+    </span><span class="s3">private void </span><span class="s2">link(</span><span class="s3">int </span><span class="s2">v1, </span><span class="s3">int </span><span class="s2">v2){ 
+        </span><span class="s3">if </span><span class="s2">(rank[v1] &lt; rank[v2]) 
+            parent[v1] = v2; 
+        </span><span class="s3">else if </span><span class="s2">(rank[v2] &lt; rank[v1]) 
+            parent[v2] = v1; 
+        </span><span class="s3">else</span><span class="s2"> 
+        { 
+            parent[v2] = v1; 
+            rank[v1] += </span><span class="s4">1</span><span class="s2">; 
+        } 
+        size--; 
+    } 
+ 
+    </span><span class="s3">int </span><span class="s2">findSet(</span><span class="s3">int </span><span class="s2">v){ 
+        </span><span class="s3">if</span><span class="s2">(v != parent[v]){ 
+            parent[v] = findSet(parent[v]); 
+        } 
+        </span><span class="s3">return </span><span class="s2">parent[v]; 
+    } 
+ 
+ 
+} 
+ 
+</span><span class="s0">/** 
+ Node 
+ **/</span><span class="s2"> 
+</span><span class="s3">class </span><span class="s2">Node { 
+    </span><span class="s3">int </span><span class="s2">parent; 
+    </span><span class="s3">int </span><span class="s2">id; 
+    </span><span class="s3">double </span><span class="s2">x; 
+    </span><span class="s3">double </span><span class="s2">y; 
+    </span><span class="s3">double </span><span class="s2">key; 
+ 
+    Node(</span><span class="s3">int </span><span class="s2">id) { 
+        </span><span class="s3">this</span><span class="s2">.x = Math.random(); 
+        </span><span class="s3">this</span><span class="s2">.y = Math.random(); 
+        </span><span class="s3">this</span><span class="s2">.id = id; 
+        </span><span class="s3">this</span><span class="s2">.parent = -</span><span class="s4">1</span><span class="s2">; 
+        </span><span class="s3">this</span><span class="s2">.key = Double.MAX_VALUE; 
+    } 
+ 
+    </span><span class="s3">public void </span><span class="s2">setParent(</span><span class="s3">int </span><span class="s2">parent) { 
+        </span><span class="s3">this</span><span class="s2">.parent = parent; 
+    } 
+ 
+    </span><span class="s3">public void </span><span class="s2">setKey(</span><span class="s3">double </span><span class="s2">key) { 
+        </span><span class="s3">this</span><span class="s2">.key = key; 
+    } 
+} 
+ 
+</span><span class="s0">/** 
+ Edge 
+ **/</span><span class="s2"> 
+</span><span class="s3">class </span><span class="s2">Edge { 
+    Node v1; 
+    Node v2; 
+    </span><span class="s3">double </span><span class="s2">w; </span><span class="s0">//weight</span><span class="s2"> 
+    Edge(Node v1, Node v2, </span><span class="s3">double </span><span class="s2">w) { 
+        </span><span class="s3">this</span><span class="s2">.v1 = v1; 
+        </span><span class="s3">this</span><span class="s2">.v2 = v2; 
+        </span><span class="s3">this</span><span class="s2">.w = w; 
+    } 
+ 
+    </span><span class="s3">void </span><span class="s2">setW(</span><span class="s3">double </span><span class="s2">w){ 
+        </span><span class="s3">this</span><span class="s2">.w = w; 
+    } 
+} 
+ 
+</span><span class="s0">/** 
+ Complete Graph 
+ **/</span><span class="s2"> 
+</span><span class="s3">class </span><span class="s2">CompleteGraph { 
+    </span><span class="s3">private double</span><span class="s2">[][] weightGraph; 
+    ArrayList&lt;Edge&gt; edges; 
+    </span><span class="s3">int </span><span class="s2">numNode; 
+    </span><span class="s3">int </span><span class="s2">numEdge; 
+ 
+    </span><span class="s3">public </span><span class="s2">CompleteGraph(Node[] nodes, </span><span class="s3">int </span><span class="s2">size) { 
+        </span><span class="s0">//Init</span><span class="s2"> 
+        </span><span class="s3">this</span><span class="s2">.numNode = size; 
+        </span><span class="s3">this</span><span class="s2">.numEdge = size*(size-</span><span class="s4">1</span><span class="s2">)/</span><span class="s4">2</span><span class="s2">; </span><span class="s0">//formula</span><span class="s2"> 
+        </span><span class="s3">this</span><span class="s2">.edges = </span><span class="s3">new </span><span class="s2">ArrayList&lt;&gt;(); 
+        </span><span class="s3">this</span><span class="s2">.weightGraph = </span><span class="s3">new double</span><span class="s2">[size][size]; 
+        </span><span class="s0">//Add weight and edges</span><span class="s2"> 
+        </span><span class="s3">for</span><span class="s2">(</span><span class="s3">int </span><span class="s2">i = </span><span class="s4">0</span><span class="s2">; i&lt;size;i++){ 
+            Node v1 = nodes[i]; 
+            </span><span class="s3">for </span><span class="s2">(</span><span class="s3">int </span><span class="s2">j = i; j&lt;size; j++){ 
+                Node v2 = nodes[j]; 
+                </span><span class="s3">if</span><span class="s2">(i == j) { 
+                    </span><span class="s3">this</span><span class="s2">.weightGraph[i][j] = </span><span class="s4">0</span><span class="s2">; 
+                    </span><span class="s3">this</span><span class="s2">.weightGraph[j][i] = </span><span class="s4">0</span><span class="s2">; 
+                }</span><span class="s3">else </span><span class="s2">{ 
+                    </span><span class="s3">this</span><span class="s2">.weightGraph[i][j] = getWeight(v1,v2); 
+                    </span><span class="s3">this</span><span class="s2">.weightGraph[j][i] = </span><span class="s3">this</span><span class="s2">.weightGraph[i][j]; 
+                } 
+                Edge e = </span><span class="s3">new </span><span class="s2">Edge(v1,v2, </span><span class="s3">this</span><span class="s2">.weightGraph[i][j]); 
+                </span><span class="s3">this</span><span class="s2">.edges.add(e); 
+            } 
+        } 
+        </span><span class="s0">//Sort Edges</span><span class="s2"> 
+        sortEdge(); 
+    } 
+ 
+    </span><span class="s3">private double </span><span class="s2">getWeight(Node v1, Node v2){ 
+        </span><span class="s3">double </span><span class="s2">diff_x = v1.x - v2.x; 
+        </span><span class="s3">double </span><span class="s2">diff_y = v1.y - v2.y; 
+        </span><span class="s3">return </span><span class="s2">Math.sqrt(diff_x*diff_x +diff_y*diff_y); 
+    } 
+ 
+    </span><span class="s3">private void </span><span class="s2">sortEdge(){ 
+        </span><span class="s3">this</span><span class="s2">.edges.sort(</span><span class="s3">new </span><span class="s2">Comparator&lt;Edge&gt;() { 
+            @Override 
+            </span><span class="s3">public int </span><span class="s2">compare(Edge c1, Edge c2) { 
+                </span><span class="s3">return </span><span class="s2">Double.compare(c1.w, c2.w); 
+            } 
+        }); 
+    } 
+} 
+ 
+</span><span class="s0">/** 
+ Connected Graph 
+ **/</span><span class="s2"> 
+</span><span class="s3">class </span><span class="s2">ConnectedGraph { 
+    LinkedList&lt;LinkedList&lt;Node&gt;&gt; adjLists; 
+    ArrayList&lt;Edge&gt; edges; 
+    ArrayList&lt;Edge&gt; checkEdges; 
+    </span><span class="s3">int </span><span class="s2">numNode; 
+    </span><span class="s3">int </span><span class="s2">numEdge; 
+    Node[] nodes; 
+    ConnectedGraph(Node[] nodes, </span><span class="s3">int </span><span class="s2">size){ 
+        </span><span class="s3">this</span><span class="s2">.nodes = nodes; 
+        </span><span class="s0">//Init</span><span class="s2"> 
+        </span><span class="s3">this</span><span class="s2">.numNode = size; 
+        </span><span class="s3">this</span><span class="s2">.checkEdges = </span><span class="s3">new </span><span class="s2">ArrayList&lt;&gt;(); 
+        </span><span class="s3">this</span><span class="s2">.edges = </span><span class="s3">new </span><span class="s2">ArrayList&lt;&gt;(); 
+        </span><span class="s3">this</span><span class="s2">.adjLists = </span><span class="s3">new </span><span class="s2">LinkedList&lt;LinkedList&lt;Node&gt;&gt;(); 
+        </span><span class="s3">for </span><span class="s2">(</span><span class="s3">int </span><span class="s2">i = </span><span class="s4">0</span><span class="s2">; i &lt; size; i++) 
+            adjLists.add(i, </span><span class="s3">new </span><span class="s2">LinkedList&lt;Node&gt;()); 
+        </span><span class="s0">//Init Disjoint Set</span><span class="s2"> 
+        DisjointSet disjointSet = </span><span class="s3">new </span><span class="s2">DisjointSet(size); 
+        disjointSet.makeSet(); 
+        </span><span class="s0">//Add weight and edges</span><span class="s2"> 
+        </span><span class="s3">while</span><span class="s2">(disjointSet.size &gt; </span><span class="s4">1</span><span class="s2">){ 
+            Random rn = </span><span class="s3">new </span><span class="s2">Random(); 
+            </span><span class="s3">int </span><span class="s2">v1_id = rn.nextInt(size); 
+            </span><span class="s3">int </span><span class="s2">v2_id = rn.nextInt(size); 
+            Node v1 = nodes[v1_id]; 
+            Node v2 = nodes[v2_id]; 
+            </span><span class="s3">double </span><span class="s2">weight = getWeight(v1,v2); 
+            Edge e = </span><span class="s3">new </span><span class="s2">Edge(v1,v2,weight); 
+            </span><span class="s0">//Simulate part-join</span><span class="s2"> 
+            </span><span class="s3">if</span><span class="s2">(!adjLists.get(v1_id).contains(v2) &amp;&amp; v1_id != v2_id){ 
+                </span><span class="s3">if </span><span class="s2">(disjointSet.findSet(v1.id) != disjointSet.findSet(v2.id)){ 
+                    disjointSet.union(v1.id,v2.id); 
+                } 
+                </span><span class="s3">this</span><span class="s2">.edges.add(e); 
+                </span><span class="s3">this</span><span class="s2">.checkEdges.add(e); 
+                </span><span class="s3">this</span><span class="s2">.checkEdges.add(</span><span class="s3">new </span><span class="s2">Edge(v2,v1,weight)); 
+                </span><span class="s3">this</span><span class="s2">.adjLists.get(v1_id).add(v2); 
+                </span><span class="s3">this</span><span class="s2">.adjLists.get(v2_id).add(v1); 
+            } 
+        } 
+        </span><span class="s3">this</span><span class="s2">.numEdge = edges.size(); 
+    } 
+ 
+    </span><span class="s3">private double </span><span class="s2">getWeight(Node v1, Node v2){ 
+        </span><span class="s3">double </span><span class="s2">diff_x = v1.x - v2.x; 
+        </span><span class="s3">double </span><span class="s2">diff_y = v1.y - v2.y; 
+        </span><span class="s3">return </span><span class="s2">Math.sqrt(diff_x*diff_x +diff_y*diff_y); 
+    } 
+ 
+    </span><span class="s3">long </span><span class="s2">sortEdge(){ 
+        </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+        </span><span class="s3">long </span><span class="s2">t = (</span><span class="s3">long</span><span class="s2">) (numEdge*Math.log(numEdge)); </span><span class="s0">//Java 7 sort uses O(nlgn)</span><span class="s2"> 
+ 
+        </span><span class="s3">this</span><span class="s2">.edges.sort(</span><span class="s3">new </span><span class="s2">Comparator&lt;Edge&gt;() { 
+            @Override 
+            </span><span class="s3">public int </span><span class="s2">compare(Edge c1, Edge c2) { 
+                </span><span class="s3">return </span><span class="s2">Double.compare(c1.w, c2.w); 
+            } 
+        }); 
+        </span><span class="s3">return </span><span class="s2">t; 
+    } 
+} 
+ 
+</span><span class="s0">/** 
+ Kruskal Algorithm 
+ **/</span><span class="s2"> 
+</span><span class="s3">class </span><span class="s2">KruskalAlgorithm { 
+    </span><span class="s3">public double </span><span class="s2">weight; 
+    </span><span class="s3">public </span><span class="s2">ArrayList&lt;Edge&gt; mst_edges; 
+    </span><span class="s3">long </span><span class="s2">timmer; 
+ 
+    </span><span class="s3">public </span><span class="s2">KruskalAlgorithm(CompleteGraph completeGraph){ 
+        </span><span class="s0">//init</span><span class="s2"> 
+        </span><span class="s3">this</span><span class="s2">.weight = </span><span class="s4">0</span><span class="s2">; 
+        </span><span class="s3">this</span><span class="s2">.mst_edges = </span><span class="s3">new </span><span class="s2">ArrayList&lt;Edge&gt;(); 
+        DisjointSet set = </span><span class="s3">new </span><span class="s2">DisjointSet(completeGraph.numNode); 
+ 
+        </span><span class="s3">for</span><span class="s2">(Edge e: completeGraph.edges){ 
+            </span><span class="s3">int </span><span class="s2">id_v1 = e.v1.id; 
+            </span><span class="s3">int </span><span class="s2">id_v2 = e.v2.id; 
+            </span><span class="s3">if</span><span class="s2">(set.findSet(id_v1)!=set.findSet(id_v2)){ 
+                </span><span class="s3">this</span><span class="s2">.mst_edges.add(e); 
+                set.union(id_v1,id_v2); 
+                </span><span class="s3">this</span><span class="s2">.weight+=e.w; 
+            } 
+        } 
+    } 
+ 
+    KruskalAlgorithm(ConnectedGraph connectedGraph) { 
+        </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+        timmer=</span><span class="s4">0</span><span class="s2">; 
+        timmer++; 
+        </span><span class="s0">//Init</span><span class="s2"> 
+        </span><span class="s3">this</span><span class="s2">.weight = </span><span class="s4">0</span><span class="s2">; 
+        </span><span class="s3">this</span><span class="s2">.mst_edges = </span><span class="s3">new </span><span class="s2">ArrayList&lt;Edge&gt;(); 
+ 
+        </span><span class="s0">//Sort Edges</span><span class="s2"> 
+        </span><span class="s3">long </span><span class="s2">t = connectedGraph.sortEdge(); 
+        </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+        timmer+=t; 
+ 
+        DisjointSet set = </span><span class="s3">new </span><span class="s2">DisjointSet(connectedGraph.numNode); 
+        </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+        timmer+=connectedGraph.numNode;</span><span class="s0">//Make-Set:O(n)</span><span class="s2"> 
+ 
+        </span><span class="s3">for</span><span class="s2">(Edge e: connectedGraph.edges){ 
+            </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+            timmer++; 
+ 
+            </span><span class="s3">int </span><span class="s2">id_v1 = e.v1.id; 
+            </span><span class="s3">int </span><span class="s2">id_v2 = e.v2.id; 
+            </span><span class="s3">if</span><span class="s2">(set.findSet(id_v1)!=set.findSet(id_v2)){ 
+                mst_edges.add(e); 
+                set.union(id_v1,id_v2); 
+                </span><span class="s3">this</span><span class="s2">.weight+=e.w; 
+ 
+                </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+                timmer++; 
+                timmer+=Math.log(set.size);</span><span class="s0">//Union/find:O(lgn)</span><span class="s2"> 
+            } 
+        } 
+    } 
+ 
+} 
+ 
+</span><span class="s0">/** 
+ Prim Algorithm 
+ **/</span><span class="s2"> 
+</span><span class="s3">class </span><span class="s2">PrimAlgorithm { 
+    </span><span class="s3">private </span><span class="s2">MPQueue queue; 
+    </span><span class="s0">//private Node[] primNodes;</span><span class="s2"> 
+    </span><span class="s3">private </span><span class="s2">Boolean[] isInPrimMST; 
+    </span><span class="s3">long </span><span class="s2">timmer; 
+    </span><span class="s3">public double </span><span class="s2">weight; 
+ 
+     </span><span class="s3">double </span><span class="s2">getWeight(Node v1, Node v2){ 
+         </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+         </span><span class="s0">//timmer++;</span><span class="s2"> 
+ 
+        </span><span class="s3">double </span><span class="s2">diff_x = v1.x - v2.x; 
+        </span><span class="s3">double </span><span class="s2">diff_y = v1.y - v2.y; 
+        </span><span class="s3">return </span><span class="s2">Math.sqrt(diff_x*diff_x +diff_y*diff_y); 
+    } 
+ 
+    PrimAlgorithm(ConnectedGraph connectedGraph){ 
+        </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+        timmer=</span><span class="s4">0</span><span class="s2">; 
+        timmer++; 
+ 
+        </span><span class="s0">//Init</span><span class="s2"> 
+        </span><span class="s3">this</span><span class="s2">.queue = </span><span class="s3">new </span><span class="s2">MPQueue(); 
+        </span><span class="s3">this</span><span class="s2">.weight = </span><span class="s4">0</span><span class="s2">; 
+        </span><span class="s0">//primNodes = new Node[connectedGraph.numNode];</span><span class="s2"> 
+        </span><span class="s3">this</span><span class="s2">.isInPrimMST = </span><span class="s3">new </span><span class="s2">Boolean[connectedGraph.numNode]; 
+        </span><span class="s3">for</span><span class="s2">(</span><span class="s3">int </span><span class="s2">pn = </span><span class="s4">0</span><span class="s2">;pn&lt;connectedGraph.numNode;pn++){ 
+            </span><span class="s3">this</span><span class="s2">.isInPrimMST[pn]=</span><span class="s3">false</span><span class="s2">; 
+            </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+            timmer++; 
+        } 
+        </span><span class="s0">//Set Queue</span><span class="s2"> 
+        connectedGraph.nodes[</span><span class="s4">0</span><span class="s2">].key = </span><span class="s4">0</span><span class="s2">; 
+        </span><span class="s3">this</span><span class="s2">.isInPrimMST[</span><span class="s4">0</span><span class="s2">]=</span><span class="s3">true</span><span class="s2">; 
+ 
+        </span><span class="s3">for </span><span class="s2">(Node n:connectedGraph.nodes){ 
+            </span><span class="s3">this</span><span class="s2">.queue.add(n); 
+        } 
+        </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+        timmer+=connectedGraph.numNode*Math.log(connectedGraph.numNode);</span><span class="s0">//Priority-insert:O(nlgn)</span><span class="s2"> 
+ 
+        </span><span class="s3">while </span><span class="s2">(!</span><span class="s3">this</span><span class="s2">.queue.isEmpty()){ 
+            </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+            timmer++; 
+ 
+            Node u = </span><span class="s3">this</span><span class="s2">.queue.extract_Min(); 
+            </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+            </span><span class="s3">if</span><span class="s2">(</span><span class="s3">this</span><span class="s2">.queue.size()&gt;</span><span class="s4">0</span><span class="s2">) { 
+                timmer += Math.log(</span><span class="s3">this</span><span class="s2">.queue.size());</span><span class="s0">//Priority-extract:O(lgn)</span><span class="s2"> 
+            }</span><span class="s3">else </span><span class="s2">{ 
+                timmer++; 
+            } 
+ 
+            isInPrimMST[u.id] = </span><span class="s3">true</span><span class="s2">; 
+            </span><span class="s3">for</span><span class="s2">(Node v : connectedGraph.adjLists.get(u.id)){ 
+                </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+                timmer++; 
+ 
+                </span><span class="s3">double </span><span class="s2">weight = getWeight(u,v); 
+                </span><span class="s3">if</span><span class="s2">(isInPrimMST[v.id] == </span><span class="s3">false </span><span class="s2">&amp;&amp; weight&lt;v.key){ 
+                    </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+                    timmer++; 
+                    v.parent = u.id; 
+                    v.key = weight; 
+                    </span><span class="s3">this</span><span class="s2">.queue.decreaseKey(</span><span class="s3">this</span><span class="s2">.queue.getPosition(v),v); 
+                    </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+                    timmer+=Math.log(</span><span class="s3">this</span><span class="s2">.queue.size());</span><span class="s0">//Decrease-Key O(lgn)</span><span class="s2"> 
+                } 
+            } 
+        } 
+        </span><span class="s0">//Calculate Weight</span><span class="s2"> 
+        </span><span class="s3">for</span><span class="s2">(Node n: connectedGraph.nodes){ 
+            </span><span class="s3">if</span><span class="s2">(n.parent!=-</span><span class="s4">1</span><span class="s2">){ 
+                </span><span class="s3">this</span><span class="s2">.weight += getWeight(n,connectedGraph.nodes[n.parent]); 
+                </span><span class="s0">//System.out.println(&quot;Node[&quot;+n.id+&quot;] --&gt;&quot;+n.parent);</span><span class="s2"> 
+            } 
+        } 
+        </span><span class="s0">//RUNNING TIME</span><span class="s2"> 
+        timmer+=connectedGraph.numNode; 
+    } 
+} 
+ 
+</span><span class="s3">public class </span><span class="s2">mst { 
+ 
+    </span><span class="s0">/** 
+     Generate Random points 
+     **/</span><span class="s2"> 
+    </span><span class="s3">private static </span><span class="s2">Node[] generatePoints(</span><span class="s3">int </span><span class="s2">size){ 
+        Node[] nodes = </span><span class="s3">new </span><span class="s2">Node[size]; 
+        </span><span class="s3">for</span><span class="s2">(</span><span class="s3">int </span><span class="s2">i = </span><span class="s4">0</span><span class="s2">; i &lt; size; i++){ 
+            nodes[i]= </span><span class="s3">new </span><span class="s2">Node(i); 
+        } 
+        </span><span class="s3">return </span><span class="s2">nodes; 
+    } 
+ 
+    </span><span class="s3">public static void </span><span class="s2">main(String[] args){ 
+ 
+        </span><span class="s3">int </span><span class="s2">numGroup[] = {</span><span class="s4">100</span><span class="s2">,</span><span class="s4">500</span><span class="s2">,</span><span class="s4">1000</span><span class="s2">,</span><span class="s4">5000</span><span class="s2">}; </span><span class="s0">//num of nodes in each group</span><span class="s2"> 
+        </span><span class="s0">/**** Generate Complete Graph ****/</span><span class="s2"> 
+       System.out.println(</span><span class="s5">&quot;[Q1]  (i)&quot;</span><span class="s2">); 
+        </span><span class="s3">int </span><span class="s2">numGraph = </span><span class="s4">50</span><span class="s2">; 
+        </span><span class="s3">double </span><span class="s2">weights[] = </span><span class="s3">new double</span><span class="s2">[numGroup.length]; 
+        </span><span class="s3">for</span><span class="s2">(</span><span class="s3">int </span><span class="s2">i = </span><span class="s4">0</span><span class="s2">; i &lt; numGroup.length;i++){ 
+            </span><span class="s3">int </span><span class="s2">node_size = numGroup[i]; 
+            </span><span class="s3">if</span><span class="s2">(i==</span><span class="s4">3</span><span class="s2">) { 
+                System.out.print(</span><span class="s5">&quot;5000nodes will take 15 minutes. Finished graph: &quot;</span><span class="s2">); 
+                </span><span class="s0">//continue;</span><span class="s2"> 
+            } 
+ 
+            </span><span class="s3">for</span><span class="s2">(</span><span class="s3">int </span><span class="s2">j = </span><span class="s4">0</span><span class="s2">; j &lt; numGraph; j++) { 
+                CompleteGraph completeGraph = </span><span class="s3">new </span><span class="s2">CompleteGraph(generatePoints(node_size), node_size); 
+                KruskalAlgorithm kruskalAlgorithm = </span><span class="s3">new </span><span class="s2">KruskalAlgorithm(completeGraph); 
+                weights[i] += kruskalAlgorithm.weight; 
+                </span><span class="s3">if</span><span class="s2">(i==</span><span class="s4">3 </span><span class="s2">&amp;&amp; j%</span><span class="s4">5</span><span class="s2">==</span><span class="s4">0</span><span class="s2">) 
+                System.out.print(</span><span class="s5">&quot; &quot;</span><span class="s2">+j); 
+            } 
+            weights[i] = weights[i]/numGraph; </span><span class="s0">//store average weight</span><span class="s2"> 
+            System.out.println(</span><span class="s5">&quot;When n = &quot;</span><span class="s2">+node_size+</span><span class="s5">&quot;;  p = &quot;</span><span class="s2"> 
+                    + numGraph+</span><span class="s5">&quot;;  Kruskal's===[MST average L(n) : &quot;</span><span class="s2">+ weights[i]+</span><span class="s5">&quot;]&quot;</span><span class="s2">); 
+        } 
+ 
+ 
+        System.out.println(); 
+ 
+ 
+        </span><span class="s0">/* Generate Connected Graph */</span><span class="s2"> 
+        System.out.println(</span><span class="s5">&quot;[Q1]  (iii)&quot;</span><span class="s2">); 
+        </span><span class="s3">int </span><span class="s2">numGraph2 = </span><span class="s4">50</span><span class="s2">; 
+        </span><span class="s3">double </span><span class="s2">weights_kruskal[] = </span><span class="s3">new double</span><span class="s2">[numGroup.length]; 
+        </span><span class="s3">double </span><span class="s2">weights_prim[] = </span><span class="s3">new double</span><span class="s2">[numGroup.length]; 
+        </span><span class="s3">long </span><span class="s2">runTime_Kruskal[] = </span><span class="s3">new long</span><span class="s2">[numGroup.length]; 
+        </span><span class="s3">long </span><span class="s2">runTime_Prim[] = </span><span class="s3">new long</span><span class="s2">[numGroup.length]; 
+        </span><span class="s3">for</span><span class="s2">(</span><span class="s3">int </span><span class="s2">i = </span><span class="s4">0</span><span class="s2">; i &lt; numGroup.length;i++){ 
+            </span><span class="s3">int </span><span class="s2">node_size = numGroup[i]; 
+            </span><span class="s3">for</span><span class="s2">(</span><span class="s3">int </span><span class="s2">j = </span><span class="s4">0</span><span class="s2">; j &lt; numGraph2; j++) { 
+                ConnectedGraph connectedGraph 
+                        = </span><span class="s3">new </span><span class="s2">ConnectedGraph(generatePoints(node_size), node_size); 
+                KruskalAlgorithm kruskalAlgorithm = </span><span class="s3">new </span><span class="s2">KruskalAlgorithm(connectedGraph); 
+                PrimAlgorithm primAlgorithm = </span><span class="s3">new </span><span class="s2">PrimAlgorithm(connectedGraph); 
+                weights_kruskal[i] += kruskalAlgorithm.weight; 
+                weights_prim[i] += primAlgorithm.weight; 
+                runTime_Kruskal[i] += kruskalAlgorithm.timmer; 
+                runTime_Prim[i] += primAlgorithm.timmer; 
+            } 
+            </span><span class="s0">//store average time</span><span class="s2"> 
+            runTime_Kruskal[i]=runTime_Kruskal[i]/numGraph2; 
+            runTime_Prim[i]=runTime_Prim[i]/numGraph2; 
+            </span><span class="s0">//store average weight</span><span class="s2"> 
+            weights_kruskal[i] = weights_kruskal[i]/numGraph2; 
+            weights_prim[i] = weights_prim[i]/numGraph2; 
+            System.out.println(</span><span class="s5">&quot;When n = &quot;</span><span class="s2">+node_size+</span><span class="s5">&quot;;  p = &quot;</span><span class="s2"> 
+                    + numGraph2+</span><span class="s5">&quot;;  Kruskak's===[RunTime : &quot;</span><span class="s2">+ runTime_Kruskal[i]+ 
+                    </span><span class="s5">&quot; / MST Average L(n): &quot;</span><span class="s2">+ weights_kruskal[i] 
+                    +</span><span class="s5">&quot;]   Prim's===[RunTime : &quot;</span><span class="s2">+ runTime_Prim[i]+ 
+                    </span><span class="s5">&quot; / MST Average L(n): &quot;</span><span class="s2">+ weights_prim[i]+</span><span class="s5">&quot;]&quot;</span><span class="s2">); 
+        } 
+ 
+    } 
+}</span></pre>
+</body>
+</html>

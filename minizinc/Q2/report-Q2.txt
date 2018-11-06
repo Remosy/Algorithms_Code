@@ -1,0 +1,19 @@
+(a) My computer is MacOS system with 3.3 GHz processor, 16 GB RAM
++===========================================+
++           FILE         |		 TIME       +
++===========================================+
++           Q2-5-3       |    69msec        +
++...........................................+
++           Q2-8-4       |    157msec       +
++...........................................+
++           Q2-12-4      |    132msec       +
++...........................................+
++           Q2-21-8      |    127msec       +
++...........................................+
+
+(b) When I use Gecode (Bundled), Q2-21-8 and Q2-5-3 can be done a little bit slower, but
+	other files can be done faster, they are around 72msec.
+(c) Since those files can be run within 1 minitues, thus, there is no further improvement.
+	However, the generated plan uses all trucks, it can cause run time problem in Q3. Thus,
+	I need to find a way to reduce the truck used in plan, and make sure a truck can carry
+	as much as they can. Like Knapsak problem in Q3.
